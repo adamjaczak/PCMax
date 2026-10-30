@@ -30,17 +30,18 @@ def generate_instance(filepath="random_instance.txt", min_processors=2, max_proc
 
 
 def find_pc_max(tasks: list, num_of_processors: int) -> int:
-    tasks.sort(reverse=True)
+    #tasks.sort(reverse=True)
     processors = [0] * num_of_processors
+    heapq.heapify(processors)
     for index, task in enumerate(tasks):
         min_time_processor = heapq.heappop(processors)
         heapq.heappush(processors, min_time_processor + task)
     return max(processors)
 
 
-#generate_instance("random_instance.txt")
+#generate_instance("random_instance2.txt",4, 4, 100,100,1,50)
 
-data = load_file("m30.txt");
+data = load_file("m10n200.txt");
 num_of_processors = data[0]
 num_of_tasks = data[1]
 tasks_times = data[2]
@@ -49,4 +50,5 @@ pcmax = find_pc_max(tasks_times, num_of_processors)
 print(pcmax)
 
 
- 
+ #random_instance1 = 121
+ #random_instance2 = 666
