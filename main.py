@@ -1,5 +1,6 @@
 import heapq
 import random
+from plot import draw_gaant_pcmax
 
 num_of_processors = 0
 num_of_tasks = 0
@@ -29,19 +30,29 @@ def generate_instance(filepath="random_instance.txt", min_processors=2, max_proc
             file.write(f"{task_time}\n")
 
 
-def find_pc_max(tasks: list, num_of_processors: int) -> int:
-    #tasks.sort(reverse=True)
-    processors = [0] * num_of_processors
+def find_pc_max(tasks: list, num_of_processors: int, draw_chart: bool = True) -> int:
+    tasks.sort(reverse=True)
+    processors = [(0, i) for i in range(num_of_processors)]
     heapq.heapify(processors)
+
+    schedule = {f"P{i}": [] for i in range(num_of_processors)}
+
     for index, task in enumerate(tasks):
-        min_time_processor = heapq.heappop(processors)
-        heapq.heappush(processors, min_time_processor + task)
-    return max(processors)
+        min_time_processor, proc_id = heapq.heappop(processors)
+        schedule[f"P{proc_id}"].append((index + 1, min_time_processor, task))
+        heapq.heappush(processors, (min_time_processor + task, proc_id))
+
+    pcmax = max(time for time, _ in processors)
+
+    if draw_chart:
+        draw_gaant_pcmax(schedule,"chart.png",pcmax)
+
+    return pcmax
 
 
-#generate_instance("random_instance2.txt",4, 4, 100,100,1,50)
+generate_instance("random_instance2.txt",3, 3, 10,10,1,50)
 
-data = load_file("m10n200.txt");
+data = load_file("random_instance2.txt");
 num_of_processors = data[0]
 num_of_tasks = data[1]
 tasks_times = data[2]
@@ -52,3 +63,5 @@ print(pcmax)
 
  #random_instance1 = 121
  #random_instance2 = 666
+
+ # Ograniczenie: max 3 minuty na instancję (warunek stopu tylko na zaliczeniu i wpisie do rankingu)
