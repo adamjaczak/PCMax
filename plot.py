@@ -48,3 +48,18 @@ def draw_gaant_pcmax(schedule, filename:str, makespan=None):
     plt.savefig(filename, dpi=150)
     plt.close(fig)
     print(f"Gaant chart saved to: {filename}")
+
+
+def build_schedule_dictionary(tasks: list, assignment: list, num_of_processors: int) -> dict:
+    schedule = {f"P{i}": [] for i in range(num_of_processors)}
+    current_times = [0] * num_of_processors
+
+    sorted_tasks = sorted(enumerate(tasks), key=lambda x: x[1], reverse=True)
+
+    for task_idx, duration in sorted_tasks:
+        proc_id = assignment[task_idx]
+        start_time = current_times[proc_id]
+        schedule[f"P{proc_id}"].append((task_idx + 1, start_time, duration))
+        current_times[proc_id] += duration
+
+    return schedule
