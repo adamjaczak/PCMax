@@ -3,6 +3,7 @@ import random
 from plot import draw_gaant_pcmax, build_schedule_dictionary
 import time
 import math
+from taboo.taboo import tabu_search
 
 num_of_processors = 0
 num_of_tasks = 0
@@ -48,7 +49,7 @@ def find_pc_max(tasks: list, num_of_processors: int):
         heapq.heappush(processors, (min_time_processor + tasks[index], proc_id))
 
     schedule = build_schedule_dictionary(tasks, assignment, len(processors))
-    draw_gaant_pcmax(schedule, "LPT.png")
+    draw_gaant_pcmax(schedule, "plots/LPT.png")
     return assignment, loads
 
 
@@ -123,7 +124,7 @@ def tabu_search_pcmax(tasks: list, num_of_processors: int, time_limit: float = 1
 
     if draw_chart:
         schedule = build_schedule_dictionary(tasks, best_assignment, num_of_processors)
-        draw_gaant_pcmax(schedule, "TABU.png", best_cmax)
+        draw_gaant_pcmax(schedule, "plots/TABU.png", best_cmax)
 
     print(f"Found Cmax: {best_cmax}")
     
@@ -131,9 +132,9 @@ def tabu_search_pcmax(tasks: list, num_of_processors: int, time_limit: float = 1
     
 
 
-#generate_instance("random_instance2.txt",3, 3, 10,10,1,50)
+#generate_instance("instances/random_instance3.txt",3, 3, 10,10,1,50)
 
-data = load_file("graham_instance.txt");
+data = load_file("instances/m50n1000.txt");
 num_of_processors = data[0]
 num_of_tasks = data[1]
 tasks_times = data[2]
@@ -143,11 +144,35 @@ max_lpt = max(pc_max_lpt_loads)
 
 print(f"PCMax z czystym LPT: {max_lpt}")
 
-pcmax = tabu_search_pcmax(tasks_times, num_of_processors, time_limit=20)
-print(f"PC Max z tabu search: {pcmax}")
+pcmax = tabu_search_pcmax(tasks_times, num_of_processors, time_limit=180)
+print(f"PC Max z tabu search (1): {pcmax}")
+
+#best_sol, best_val = tabu_search(num_of_processors, tasks_times)
+
+#print(f"PC Max z tabu search (2): {best_val}")
 
 
  #random_instance1 = 121
  #random_instance2 = 666
 
  # Ograniczenie: max 3 minuty na instancję (warunek stopu tylko na zaliczeniu i wpisie do rankingu)
+
+#  m25.txt:
+#  LPT: 3462
+#  TABU (180s): 3462
+# 
+#  m25.txt:
+#  LPT: 298
+#  TABU (10s): 298
+#
+#  m10n200.txt:
+#  LPT: 11024
+#  TABU (180s):  11003
+#   
+#   m50n200.txt:
+#   LPT: 992
+#   TABU (180s): 992
+#
+#   m50n100.txt:
+#   LPT: 9779
+#   TABU(180s): 9777
