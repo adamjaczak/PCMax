@@ -1,0 +1,18 @@
+[19:56:22] === Start testu: instances/m50n1000.txt ===
+[19:57:03] [TABU] best=9777 | LB=9763 
+ best_at=0.01s | iters=206142 (5671.8 iter/s)
+[20:20:01] === Start testu: instances/m50n1000.txt ===
+[20:21:25] === Start testu: instances/m50n1000.txt ===
+[20:21:29] t=0.0s | iter=1 | new_best=9777 (LB=9763)
+[20:21:29] t=0.02s | iter=5 | new_best=9776 (LB=9763)
+[20:21:29] t=0.08s | iter=17 | new_best=9775 (LB=9763)
+[20:21:29] t=0.19s | iter=40 | new_best=9774 (LB=9763)
+[20:21:30] t=0.3s | iter=64 | new_best=9773 (LB=9763)
+[20:21:30] t=0.68s | iter=154 | new_best=9772 (LB=9763)
+[20:21:30] t=0.84s | iter=189 | new_best=9771 (LB=9763)
+[20:21:31] t=1.62s | iter=370 | new_best=9770 (LB=9763)
+[20:21:31] t=2.09s | iter=480 | new_best=9769 (LB=9763)
+[20:21:34] t=4.63s | iter=1071 | new_best=9768 (LB=9763)
+[20:21:36] t=6.81s | iter=1573 | new_best=9767 (LB=9763)
+[20:22:05] [TABU] best=9767 | LB=9763 
+ best_at=6.81s | iters=6327 (179.1 iter/s)
