@@ -1,0 +1,24 @@
+ #random_instance1 = 121
+ #random_instance2 = 666
+
+ # Ograniczenie: max 3 minuty na instancję (warunek stopu tylko na zaliczeniu i wpisie do rankingu)
+
+#  m25.txt:
+#  LPT: 3462
+#  TABU (180s): 3462
+# 
+#  m25.txt:
+#  LPT: 298
+#  TABU (10s): 298
+#
+#  m10n200.txt:
+#  LPT: 11024
+#  TABU (180s):  11003
+#   
+#   m50n200.txt:
+#   LPT: 992
+#   TABU (180s): 992
+#
+#   m50n100.txt:
+#   LPT: 9779
+#   TABU(180s): 9777

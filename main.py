@@ -1,40 +1,41 @@
 import heapq
 import random
-from plot import draw_gaant_pcmax, build_schedule_dictionary
 import time
-import math
-from taboo.taboo import tabu_search
+from plot import draw_gaant_pcmax, build_schedule_dictionary
 
-num_of_processors = 0
-num_of_tasks = 0
-tasks_times = []
 
-def load_file(path: str) -> list:
-    try:
-        with open(path, 'r') as file:
-            num_of_processors = int(file.readline())
-            num_of_tasks = int(file.readline())
-            tasks_times = [int(line.strip()) for line in file.readlines()]
-    except FileNotFoundError:
-        print("Nie znaleziono pliku.")
+def load_file(path: str) -> tuple[int, int, list[int]]:
+    with open(path, "r") as file:
+        num_of_processors = int(file.readline())
+        num_of_tasks = int(file.readline())
+        tasks_times = [int(line.strip()) for line in file if line.strip()]
+    return num_of_processors, num_of_tasks, tasks_times
 
-    # zwraca wartość w formie listy [liczba procesorów, liczba zadań, [proces_1, proces_2, ...., proces_n]]
-    return [num_of_processors, num_of_tasks, tasks_times]
 
-def generate_instance(filepath="random_instance.txt", min_processors=2, max_processors=50, min_tasks=10, max_tasks=200, min_time=1, max_time=100):
+def generate_instance(
+    filepath: str = "random_instance.txt",
+    min_processors: int = 2,
+    max_processors: int = 50,
+    min_tasks: int = 10,
+    max_tasks: int = 200,
+    min_time: int = 1,
+    max_time: int = 100,
+) -> None:
     num_processors = random.randint(min_processors, max_processors)
     num_tasks = random.randint(min_tasks, max_tasks)
-    with open(filepath, 'w') as file:
+    with open(filepath, "w") as file:
         file.write(f"{num_processors}\n")
         file.write(f"{num_tasks}\n")
-
         for _ in range(num_tasks):
-            task_time = random.randint(min_time, max_time)
-            file.write(f"{task_time}\n")
+            file.write(f"{random.randint(min_time, max_time)}\n")
 
 
-def find_pc_max(tasks: list, num_of_processors: int):
-    tasks.sort(reverse=True)
+def find_pc_max(
+    tasks: list[int],
+    num_of_processors: int,
+    draw_chart: bool = False,
+    output_path: str = "plots/LPT.png",
+) -> tuple[list[int], list[int]]:
     sorted_indices = sorted(range(len(tasks)), key=lambda i: tasks[i], reverse=True)
     processors = [(0, i) for i in range(num_of_processors)]
     heapq.heapify(processors)
@@ -48,75 +49,98 @@ def find_pc_max(tasks: list, num_of_processors: int):
         loads[proc_id] += tasks[index]
         heapq.heappush(processors, (min_time_processor + tasks[index], proc_id))
 
-    schedule = build_schedule_dictionary(tasks, assignment, len(processors))
-    draw_gaant_pcmax(schedule, "plots/LPT.png")
+    if draw_chart:
+        schedule = build_schedule_dictionary(tasks, assignment, num_of_processors)
+        draw_gaant_pcmax(schedule, output_path, max(loads))
+
     return assignment, loads
 
 
-def tabu_search_pcmax(tasks: list, num_of_processors: int, time_limit: float = 175.0, tabu_tenure: int = 15, draw_chart: bool = True) -> int:
-    start_time = time.time()
+def _second_largest_except(loads: list[int], skip_idx: int) -> int:
+    second = -1
+    for idx, val in enumerate(loads):
+        if idx == skip_idx:
+            continue
+        if val > second:
+            second = val
+    return max(0, second)
 
+
+def tabu_search_pcmax(
+    tasks: list[int],
+    num_of_processors: int,
+    time_limit: float = 175.0,
+    tabu_tenure: int = 15,
+    draw_chart: bool = True,
+    seed: int | None = None,
+) -> tuple[int, int]:
+    rng = random.Random(seed)
+    start_time = time.time()
     n = len(tasks)
 
-    if n == 0 or num_of_processors == 0:
-        return 0
+    if n == 0 or num_of_processors <= 0:
+        return 0, 0
     if num_of_processors == 1:
-        return sum(tasks)
+        total = sum(tasks)
+        return total, 0
 
-    #current_assignment - index is the number of a task, value is the number of processor
-    #current_loads - sum of all tasks that are now on each processor
-
-    current_assignment, current_loads = find_pc_max(tasks, num_of_processors)
-
+    current_assignment, current_loads = find_pc_max(tasks, num_of_processors, draw_chart=False)
     best_assignment = list(current_assignment)
     best_cmax = max(current_loads)
 
-    tabu_list = {}
+    tabu_until: dict[tuple[int, int], int] = {}
     iteration = 0
 
     while time.time() - start_time < time_limit:
         iteration += 1
         current_cmax = max(current_loads)
 
-        # Longest processing processor
-        crit_proc = current_loads.index(current_cmax)
+        crit_candidates = [i for i, load in enumerate(current_loads) if load == current_cmax]
+        crit_proc = rng.choice(crit_candidates)
+        second_max = _second_largest_except(current_loads, crit_proc)
 
         best_move = None
-        best_neighbor_cmax = float('inf')
+        best_neighbor_cmax = float("inf")
+
+        crit_load_after_remove = current_loads[crit_proc]
 
         for task_index in range(n):
             if current_assignment[task_index] != crit_proc:
                 continue
 
             task_time = tasks[task_index]
+            rem_crit_load = crit_load_after_remove - task_time
+
             for target_proc in range(num_of_processors):
                 if target_proc == crit_proc:
                     continue
 
-                new_loads = list(current_loads)
-                new_loads[crit_proc] -= task_time
-                new_loads[target_proc] += task_time
-                new_cmax = max(new_loads)
+                new_target_load = current_loads[target_proc] + task_time
 
-                is_tabu = tabu_list.get((task_index, target_proc), 0) > iteration
+                # Maksimum obciążenia po przeniesieniu task_index z crit_proc na target_proc
+                new_cmax = rem_crit_load if rem_crit_load > second_max else second_max
+                if new_target_load > new_cmax:
+                    new_cmax = new_target_load
+
+                is_tabu = tabu_until.get((task_index, target_proc), 0) > iteration
                 if is_tabu and new_cmax >= best_cmax:
                     continue
 
                 if new_cmax < best_neighbor_cmax:
                     best_neighbor_cmax = new_cmax
                     best_move = (task_index, crit_proc, target_proc)
+
         if best_move is None:
-            #break
-            tabu_list.clear()
+            tabu_until.clear()
             continue
 
         task_index, from_proc, to_proc = best_move
-
         current_assignment[task_index] = to_proc
         current_loads[from_proc] -= tasks[task_index]
         current_loads[to_proc] += tasks[task_index]
 
-        tabu_list[(task_index, from_proc)] = iteration + tabu_tenure
+        # Zakaz powrotu tego zadania na poprzedni procesor przez tabu_tenure iteracji
+        tabu_until[(task_index, from_proc)] = iteration + tabu_tenure
 
         if best_neighbor_cmax < best_cmax:
             best_cmax = best_neighbor_cmax
@@ -126,53 +150,27 @@ def tabu_search_pcmax(tasks: list, num_of_processors: int, time_limit: float = 1
         schedule = build_schedule_dictionary(tasks, best_assignment, num_of_processors)
         draw_gaant_pcmax(schedule, "plots/TABU.png", best_cmax)
 
-    print(f"Found Cmax: {best_cmax}")
-    
-    return best_cmax
-    
+    return best_cmax, iteration
 
 
-#generate_instance("instances/random_instance3.txt",3, 3, 10,10,1,50)
+if __name__ == "__main__":
+    num_processors, num_tasks, tasks_times = load_file("instances/m50n1000.txt")
 
-data = load_file("instances/m50n1000.txt");
-num_of_processors = data[0]
-num_of_tasks = data[1]
-tasks_times = data[2]
+    _, lpt_loads = find_pc_max(
+        tasks_times,
+        num_processors,
+        draw_chart=True,
+        output_path="plots/LPT.png",
+    )
+    max_lpt = max(lpt_loads)
+    print(f"PCMax z czystym LPT: {max_lpt}")
 
-pc_max_lpt, pc_max_lpt_loads = find_pc_max(tasks_times, num_of_processors)
-max_lpt = max(pc_max_lpt_loads)
-
-print(f"PCMax z czystym LPT: {max_lpt}")
-
-pcmax = tabu_search_pcmax(tasks_times, num_of_processors, time_limit=180)
-print(f"PC Max z tabu search (1): {pcmax}")
-
-#best_sol, best_val = tabu_search(num_of_processors, tasks_times)
-
-#print(f"PC Max z tabu search (2): {best_val}")
-
-
- #random_instance1 = 121
- #random_instance2 = 666
-
- # Ograniczenie: max 3 minuty na instancję (warunek stopu tylko na zaliczeniu i wpisie do rankingu)
-
-#  m25.txt:
-#  LPT: 3462
-#  TABU (180s): 3462
-# 
-#  m25.txt:
-#  LPT: 298
-#  TABU (10s): 298
-#
-#  m10n200.txt:
-#  LPT: 11024
-#  TABU (180s):  11003
-#   
-#   m50n200.txt:
-#   LPT: 992
-#   TABU (180s): 992
-#
-#   m50n100.txt:
-#   LPT: 9779
-#   TABU(180s): 9777
+    pcmax, iters = tabu_search_pcmax(
+        tasks_times,
+        num_processors,
+        time_limit=180,
+        tabu_tenure=15,
+        draw_chart=True,
+        seed=42,
+    )
+    print(f"PCMax z tabu search: {pcmax} (iteracji: {iters})")
