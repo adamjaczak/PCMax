@@ -2,7 +2,7 @@ from core import find_pc_max,tabu_search_pcmax
 from tools import make_file_logger, load_file
 
 
-filepath = "instances/m50n1000.txt"
+filepath = "instances/m50.txt"
 log_to_file = make_file_logger(f"{filepath}_logs.txt", also_print=True)
 
 

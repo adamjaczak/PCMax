@@ -1,0 +1,19 @@
+[20:32:31] === Start testu: instances/m10n200.txt ===
+[20:32:32] t=0.0s | iter=2 | new_best=11023 (LB=10999)
+[20:32:32] t=0.0s | iter=3 | new_best=11018 (LB=10999)
+[20:32:32] t=0.0s | iter=6 | new_best=11015 (LB=10999)
+[20:32:32] t=0.0s | iter=7 | new_best=11013 (LB=10999)
+[20:32:32] t=0.0s | iter=8 | new_best=11011 (LB=10999)
+[20:32:32] t=0.0s | iter=10 | new_best=11009 (LB=10999)
+[20:32:32] t=0.0s | iter=13 | new_best=11007 (LB=10999)
+[20:32:32] t=0.0s | iter=14 | new_best=11006 (LB=10999)
+[20:32:32] t=0.0s | iter=15 | new_best=11005 (LB=10999)
+[20:32:32] t=0.01s | iter=17 | new_best=11004 (LB=10999)
+[20:32:32] t=0.01s | iter=18 | new_best=11003 (LB=10999)
+[20:32:32] t=0.01s | iter=20 | new_best=11002 (LB=10999)
+[20:32:32] t=0.01s | iter=23 | new_best=11001 (LB=10999)
+[20:32:32] t=0.01s | iter=38 | new_best=11000 (LB=10999)
+[20:32:32] t=0.18s | iter=623 | new_best=10999 (LB=10999)
+[20:32:32] CMAX reached LB!
+[20:32:33] [TABU] best=10999 | LB=10999 
+ best_at=0.18s | iters=623 (548.0 iter/s)

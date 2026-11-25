@@ -55,7 +55,7 @@ def tabu_search_pcmax(
     log_fn,
     time_limit: float = 175.0,
     tabu_tenure: int = 15,
-    max_swap_tasks_per_proc: int =15,
+    max_swap_tasks_per_proc: int =8,
     draw_chart: bool = True,
     seed: int | None = None,
 ) -> tuple[int, int]:
@@ -74,10 +74,27 @@ def tabu_search_pcmax(
     best_cmax = max(current_loads)
 
     lb = max(max(tasks), math.ceil(sum(tasks)/ num_of_processors))
+
+    if best_cmax <= lb:
+        if draw_chart:
+            schedule = build_schedule_dictionary(tasks, best_assignment, num_of_processors)
+            draw_gaant_pcmax(schedule, "plots/TABU.png", best_cmax)
+        log_fn(
+            f"[TABU] best={best_cmax} | LB={lb} (optimal at start)\n "
+            f"best_at=0.0s | iters=0 (0.0 iter/s)"
+        )
+        return best_cmax, 0
+            
     best_time = 0.0
 
     tabu_until: dict[tuple[int, int], int] = {}
     iteration = 0
+
+
+    proc_tasks: list[list[int]] = [[] for _ in range(num_of_processors)]
+    for index, p in enumerate(current_assignment):
+        proc_tasks[p].append(index)
+    
 
     while time.time() - start_time < time_limit:
         iteration += 1
@@ -118,10 +135,6 @@ def tabu_search_pcmax(
                     best_relocate = (task_index, crit_proc, target_proc)
 
         # Szukanie best swap
-
-        proc_tasks: list[list[int]] = [[] for _ in range(num_of_processors)]
-        for index, p in enumerate(current_assignment):
-            proc_tasks[p].append(index)
 
         src_candidates = proc_tasks[crit_proc]
         if len(src_candidates) > max_swap_tasks_per_proc:
@@ -180,6 +193,11 @@ def tabu_search_pcmax(
             current_loads[src_proc] = current_loads[src_proc] - time_src + time_dst
             current_loads[dst_proc] = current_loads[dst_proc] - time_dst + time_src
 
+            proc_tasks[src_proc].remove(t_src)
+            proc_tasks[src_proc].append(t_dst)
+            proc_tasks[dst_proc].remove(t_dst)
+            proc_tasks[dst_proc].append(t_src)
+
             tabu_until[(t_src, src_proc)] = iteration + tabu_tenure
             tabu_until[(t_dst, dst_proc)] = iteration + tabu_tenure
         else:
@@ -190,6 +208,9 @@ def tabu_search_pcmax(
             current_loads[from_proc] -= task_time
             current_loads[to_proc] += task_time
 
+            proc_tasks[from_proc].remove(task_index)
+            proc_tasks[to_proc].append(task_index)
+
             tabu_until[(task_index, from_proc)] = iteration + tabu_tenure
 
         if chosen_cmax < best_cmax:
@@ -197,6 +218,9 @@ def tabu_search_pcmax(
             best_assignment = list(current_assignment)
             best_time = round(time.time() - start_time, 2)
             log_fn(f"t={best_time}s | iter={iteration} | new_best={best_cmax} (LB={lb})")
+            if best_cmax <= lb:
+                log_fn(f"CMAX reached LB!")
+                break
 
     if draw_chart:
         schedule = build_schedule_dictionary(tasks, best_assignment, num_of_processors)
