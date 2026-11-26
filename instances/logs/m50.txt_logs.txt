@@ -1,0 +1,15 @@
+[20:33:03] === Start testu: instances/m50.txt ===
+[20:33:35] [TABU] best=298 | LB=297 
+ best_at=0.0s | iters=45051 (1446.3 iter/s)
+[21:13:45] === Start testu: instances/m50.txt ===
+[21:13:46] [WORKER seed=42] best=50 | iters=0
+[21:13:46] [WORKER seed=143] best=50 | iters=0
+[21:13:46] [WORKER seed=345] best=50 | iters=0
+[21:13:46] [WORKER seed=244] best=50 | iters=0
+[21:13:46] [PARALLEL END] best=50 | LB=50 | best_seed=42 | total_iters=0
+[21:14:53] === Start testu: instances/m50.txt ===
+[21:17:54] [WORKER seed=143] best=298 | iters=97443
+[21:17:54] [WORKER seed=42] best=298 | iters=96932
+[21:17:54] [WORKER seed=244] best=298 | iters=98096
+[21:17:54] [WORKER seed=345] best=298 | iters=96542
+[21:17:54] [PARALLEL END] best=298 | LB=297 | best_seed=143 | total_iters=389013

@@ -53,3 +53,9 @@
 [20:30:42] CMAX reached LB!
 [20:30:47] [TABU] best=9763 | LB=9763 
  best_at=1.21s | iters=434 (79.7 iter/s)
+[21:19:51] === Start testu: instances/m50n1000.txt ===
+[21:19:57] [WORKER seed=244] best=9763 | iters=426
+[21:19:57] [WORKER seed=42] best=9763 | iters=469
+[21:20:05] [WORKER seed=143] best=9763 | iters=2597
+[21:20:07] [WORKER seed=345] best=9763 | iters=2937
+[21:20:07] [PARALLEL END] best=9763 | LB=9763 | best_seed=244 | total_iters=6429

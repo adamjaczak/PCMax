@@ -15,3 +15,9 @@
 [13:33:39] CMAX reached LB!
 [13:33:41] [TABU] best=977 | LB=977 
  best_at=0.33s | iters=290 (155.3 iter/s)
+[21:19:26] === Start testu: instances/m50n200.txt ===
+[21:19:28] [WORKER seed=42] best=977 | iters=254
+[21:19:28] [WORKER seed=345] best=977 | iters=326
+[21:19:28] [WORKER seed=143] best=977 | iters=311
+[21:19:28] [WORKER seed=244] best=977 | iters=311
+[21:19:28] [PARALLEL END] best=977 | LB=977 | best_seed=42 | total_iters=1202

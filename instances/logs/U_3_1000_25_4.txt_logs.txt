@@ -42,3 +42,9 @@
 [13:57:22] t=3.52s | iter=1631 | new_best=197547 (LB=197546)
 [13:57:55] [TABU] best=197547 | LB=197546 
  best_at=3.52s | iters=13637 (373.9 iter/s)
+[14:15:54] === Start testu: instances/U_3_1000_25_4.txt ===
+[14:16:31] [WORKER seed=42] best=197547 | iters=6175
+[14:16:31] [WORKER seed=345] best=197547 | iters=4778
+[14:16:31] [WORKER seed=143] best=197547 | iters=4841
+[14:16:31] [WORKER seed=244] best=197548 | iters=5203
+[14:16:31] [PARALLEL END] best=197547 | LB=197546 | best_seed=42 | total_iters=20997

@@ -1,0 +1,6 @@
+[21:18:27] === Start testu: instances/m25.txt ===
+[21:18:29] [WORKER seed=244] best=3458 | iters=49
+[21:18:29] [WORKER seed=42] best=3458 | iters=135
+[21:18:29] [WORKER seed=345] best=3458 | iters=459
+[21:18:30] [WORKER seed=143] best=3458 | iters=887
+[21:18:30] [PARALLEL END] best=3458 | LB=3458 | best_seed=244 | total_iters=1530

@@ -3,6 +3,80 @@ import random
 import time
 from plot import draw_gaant_pcmax, build_schedule_dictionary
 import math
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import os
+
+def tabu_worker(kwargs: dict) -> tuple[int, int, int | None]:
+    seed = kwargs.get("seed")
+    cmax, iters = tabu_search_pcmax(
+        **kwargs,
+        draw_chart=False,
+        log_fn=lambda msg: None,
+    )
+    return cmax, iters, seed
+
+def tabu_search_pcmax_parallel(
+    tasks: list[int],
+    num_of_processors: int,
+    time_limit: float = 175.0,
+    max_workers: int | None = None,
+    base_seed: int = 42,
+    draw_chart: bool = True,
+    log_fn=print,
+) -> tuple[int, int]:
+    if not tasks or num_of_processors <= 0:
+        return 0, 0
+    if num_of_processors == 1:
+        return sum(tasks), 0
+
+    workers = max_workers or min(os.cpu_count() or 2, 8)
+    lb = max(max(tasks), math.ceil(sum(tasks) / num_of_processors))
+
+    configs = []
+    for idx in range(workers):
+        configs.append(
+            {
+                "tasks": tasks,
+                "num_of_processors": num_of_processors,
+                "time_limit": time_limit,
+                "tabu_tenure": 10 + (idx % 4) * 5,
+                "max_swap_tasks_per_proc": 8 if idx % 2 == 0 else 12,
+                "perturb_after": 250 + (idx % 3) * 150,
+                "perturb_moves": 8 + (idx % 3) * 6,
+                "seed": base_seed + idx * 101,
+            }
+        )
+
+    best_cmax = float("inf")
+    total_iters = 0
+    best_seed = None
+
+    with ProcessPoolExecutor(max_workers=workers) as executor:
+        futures = [executor.submit(tabu_worker, cfg) for cfg in configs]
+        for future in as_completed(futures):
+            cmax, iters, seed = future.result()
+            total_iters += iters
+            log_fn(f"[WORKER seed={seed}] best={cmax} | iters={iters}")
+            if cmax < best_cmax:
+                best_cmax = cmax
+                best_seed = seed
+
+    log_fn(
+        f"[PARALLEL END] best={best_cmax} | LB={lb} | "
+        f"best_seed={best_seed} | total_iters={total_iters}"
+    )
+
+    if draw_chart:
+        tabu_search_pcmax(
+            tasks=tasks,
+            num_of_processors=num_of_processors,
+            time_limit=1.0,
+            seed=best_seed,
+            draw_chart=True,
+            log_fn=lambda msg: None,
+        )
+
+    return int(best_cmax), total_iters
 
 def find_pc_max(
     tasks: list[int],
@@ -254,7 +328,7 @@ def tabu_search_pcmax(
                 break
         else:
             no_improve_iters += 1
-            
+
     if no_improve_iters >= perturb_after:
             _perturb_assignment(
                 rng,

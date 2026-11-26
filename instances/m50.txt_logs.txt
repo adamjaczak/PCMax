@@ -1,3 +1,0 @@
-[20:33:03] === Start testu: instances/m50.txt ===
-[20:33:35] [TABU] best=298 | LB=297 
- best_at=0.0s | iters=45051 (1446.3 iter/s)
