@@ -49,6 +49,33 @@ def _max_except_two(loads: list[int], index_a: int, index_b: int) -> int:
 
     return best
 
+def _perturb_assignment(
+    rng: random.Random,
+    tasks: list[int],
+    assignment: list[int],
+    loads: list[int],
+    proc_tasks: list[list[int]],
+    num_of_processors: int,
+    moves: int,
+) -> None:
+    n = len(tasks)
+    if n < 2 or num_of_processors < 2:
+        return
+    for _ in range(moves):
+        task_idx = rng.randrange(n)
+        src = assignment[task_idx]
+        dst = rng.randrange(num_of_processors - 1)
+        if dst >= src:
+            dst += 1
+
+        t_time = tasks[task_idx]
+        assignment[task_idx] = dst
+        loads[src] -= t_time
+        loads[dst] += t_time
+
+        proc_tasks[src].remove(task_idx)
+        proc_tasks[dst].append(task_idx)
+
 def tabu_search_pcmax(
     tasks: list[int],
     num_of_processors: int,
@@ -58,6 +85,8 @@ def tabu_search_pcmax(
     max_swap_tasks_per_proc: int =8,
     draw_chart: bool = True,
     seed: int | None = None,
+    perturb_after: int = 300,
+    perturb_moves: int = 10,
 ) -> tuple[int, int]:
     rng = random.Random(seed)
     start_time = time.time()
@@ -96,6 +125,7 @@ def tabu_search_pcmax(
         proc_tasks[p].append(index)
     
 
+    no_improve_iters = 0
     while time.time() - start_time < time_limit:
         iteration += 1
         current_cmax = max(current_loads)
@@ -214,6 +244,7 @@ def tabu_search_pcmax(
             tabu_until[(task_index, from_proc)] = iteration + tabu_tenure
 
         if chosen_cmax < best_cmax:
+            no_improve_iters = 0
             best_cmax = chosen_cmax
             best_assignment = list(current_assignment)
             best_time = round(time.time() - start_time, 2)
@@ -221,6 +252,21 @@ def tabu_search_pcmax(
             if best_cmax <= lb:
                 log_fn(f"CMAX reached LB!")
                 break
+        else:
+            no_improve_iters += 1
+            
+    if no_improve_iters >= perturb_after:
+            _perturb_assignment(
+                rng,
+                tasks,
+                current_assignment,
+                current_loads,
+                proc_tasks,
+                num_of_processors,
+                perturb_moves,
+            )
+            tabu_until.clear()
+            no_improve_iters = 0
 
     if draw_chart:
         schedule = build_schedule_dictionary(tasks, best_assignment, num_of_processors)

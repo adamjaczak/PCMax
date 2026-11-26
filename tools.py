@@ -12,11 +12,15 @@ def make_file_logger(filepath: str, also_print: bool = True):
 
     return logger
 
-def load_file(path: str) -> tuple[int, int, list[int]]:
+def load_file(path: str, times_in_one_row: bool = False) -> tuple[int, int, list[int]]:
     with open(path, "r") as file:
         num_of_processors = int(file.readline())
         num_of_tasks = int(file.readline())
-        tasks_times = [int(line.strip()) for line in file if line.strip()]
+        if not times_in_one_row:
+            tasks_times = [int(line.strip()) for line in file if line.strip()]
+        else:
+            tasks_times = [int(x) for x in file.readline().split()]
+            print(tasks_times)
     return num_of_processors, num_of_tasks, tasks_times
 
 

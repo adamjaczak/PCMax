@@ -2,7 +2,7 @@ from core import find_pc_max,tabu_search_pcmax
 from tools import make_file_logger, load_file
 
 
-filepath = "instances/m50.txt"
+filepath = "instances/U_3_1000_25_4.txt"
 log_to_file = make_file_logger(f"{filepath}_logs.txt", also_print=True)
 
 
@@ -10,7 +10,9 @@ if __name__ == "__main__":
     
     
     log_to_file(f"=== Start testu: {filepath} ===")
-    num_processors, num_tasks, tasks_times = load_file(filepath)
+    num_processors, num_tasks, tasks_times = load_file(filepath, True)
+
+    exit
 
     _, lpt_loads = find_pc_max(
         tasks_times,

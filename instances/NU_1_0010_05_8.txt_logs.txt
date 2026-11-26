@@ -1,0 +1,10 @@
+[13:43:16] === Start testu: instances/NU_1_0010_05_8.txt ===
+[13:44:31] === Start testu: instances/NU_1_0010_05_8.txt ===
+[13:45:44] === Start testu: instances/NU_1_0010_05_8.txt ===
+[13:45:56] === Start testu: instances/NU_1_0010_05_8.txt ===
+[13:46:38] === Start testu: instances/NU_1_0010_05_8.txt ===
+[13:47:11] === Start testu: instances/NU_1_0010_05_8.txt ===
+[13:48:17] === Start testu: instances/NU_1_0010_05_8.txt ===
+[13:50:19] === Start testu: instances/NU_1_0010_05_8.txt ===
+[13:50:50] [TABU] best=190 | LB=174 
+ best_at=0.0s | iters=1504523 (49693.4 iter/s)
