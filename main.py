@@ -1,7 +1,7 @@
 from core import find_pc_max, tabu_search_pcmax_parallel
 from tools import make_file_logger, load_file
 
-file = "m50n1000.txt"
+file = "m10n200.txt"
 filepath = f"instances/{file}"
 filepath_to_log_file = f"instances/logs/{file}"
 log_to_file = make_file_logger(filepath_to_log_file, also_print=True)
