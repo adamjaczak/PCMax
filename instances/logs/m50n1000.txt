@@ -4,3 +4,9 @@
 [21:27:29] [WORKER seed=143] best=9763 | iters=2597
 [21:27:32] [WORKER seed=345] best=9763 | iters=2937
 [21:27:32] [PARALLEL END] best=9763 | LB=9763 | best_seed=244 | total_iters=6429
+[23:14:44] === Start testu: instances/m50n1000.txt ===
+[23:14:52] [WORKER seed=244] best=9763 | iters=426
+[23:14:52] [WORKER seed=42] best=9763 | iters=469
+[23:15:01] [WORKER seed=143] best=9763 | iters=2597
+[23:15:02] [WORKER seed=345] best=9763 | iters=2937
+[23:15:02] [PARALLEL END] best=9763 | LB=9763 | best_seed=244 | total_iters=6429
